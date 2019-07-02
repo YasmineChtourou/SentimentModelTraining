@@ -17,18 +17,18 @@ from keras.callbacks import EarlyStopping
 from sklearn.model_selection import train_test_split
 
 
-from LSTM_Glove import preprocessing
+import preprocessing
 
 DIR_GLOVE = os.path.abspath('../Glove/')
 DIR_DATA = os.path.abspath('../Dataset/')
 MAX_SEQUENCE_LENGTH = 100
 MAX_NB_WORDS = 20000
 EMBEDDING_DIM = 300
-TEST_SPLIT = 0.2
+TEST_SPLIT = 0.1
 VALIDATION_SPLIT = 0.1
 tokenizer = Tokenizer(num_words=MAX_NB_WORDS)
 label_dict = {}
-labels=[]
+classes=[]
 
 
 def clean_str(string):
@@ -47,7 +47,7 @@ def clean_str(string):
     string = re.sub(r"\s{2,}", " ", string)
     return string.strip().lower()
 
-
+# Load the glove file
 def gloveVec(filename):
     embeddings = {}
     f = open(os.path.join(DIR_GLOVE, filename), encoding='utf-8')
@@ -63,20 +63,24 @@ def gloveVec(filename):
     f.close()
     return embeddings
 
-
+# load the dataset 
 def loadData(filename):
     df = pd.read_csv(DIR_DATA + filename,delimiter=';')
     selected = ['Label', 'Text']
     non_selected = list(set(df.columns) - set(selected))
+    # delete non_selected columns
     df = df.drop(non_selected, axis=1)
     df = df.dropna(axis=0, how='any', subset=selected)
-    labels = sorted(list(set(df[selected[0]].tolist())))
-    for i in range(len(labels)):
-        label_dict[labels[i]] = i
-    x_train = df[selected[1]].apply(lambda x: clean_str(x)).tolist()
-    y_train = df[selected[0]].apply(lambda y: label_dict[y]).tolist()
-    y_train = to_categorical(np.asarray(y_train))
-    return x_train,y_train
+    classes = sorted(list(set(df[selected[0]].tolist())))
+    # classes = ['negative', 'neutre', 'positive']
+    for i in range(len(classes)):
+        label_dict[classes[i]] = i
+        # label_dict = {'negative': 0, 'neutre': 1, 'positive': 2}
+    sentences = df[selected[1]].apply(lambda x: clean_str(x)).tolist()
+    labels = df[selected[0]].apply(lambda y: label_dict[y]).tolist()
+    labels = to_categorical(np.asarray(labels))
+    # to_categorical: Converts a class vector (integers) to binary class matrix
+    return sentences,labels
 
 
 def createVocabAndData(sentences):
@@ -127,8 +131,7 @@ embeddings = gloveVec('glove.840B.300d.txt')
 sentences, labels = loadData('data.csv')
 
 for i in range(len(sentences)):
-    sentences[i]=preprocessing.transformText(sentences[i])
-
+    sentences[i] = preprocessing.transform_text(sentences[i])
 vocab, data = createVocabAndData(sentences)
 
 embedding_mat,out_of_vocabulary = createEmbeddingMatrix(vocab,embeddings)
@@ -136,4 +139,4 @@ pickle.dump([data, labels, embedding_mat], open('embedding_matrix.pkl', 'wb'))
 print ("Data created")
 X_train, X_test, y_train, y_test = train_test_split(data, labels, test_size=TEST_SPLIT, random_state=42)
 
-m=lstmModel(embedding_mat,40)
+model = lstmModel(embedding_mat,40)

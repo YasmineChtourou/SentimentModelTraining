@@ -1,4 +1,4 @@
-# SentimentModelService
+# SentimentModelTraining
 
 
 This is a multi-class text classification problem.
@@ -27,13 +27,14 @@ To get a development environment running you should :
 
    * Create a new virtual environment and easily install all libraries by running the following command :
 
-``` conda create  --name venv_name  --file requirements.txt ```
+``` virtualenv venv ```
+
+``` source venv/bin/activate (Under windows run $ venv/Scripts/activate.bat) ```
+
+``` pip install -r requirements.txt ```
 
 In the file requirements.txt you find all necessary dependencies for this project.
 
-   * To activate the new environment :
-
-``` source activate  venv_name ```
 
 
 ## In order to run this download Glove Vectors:

@@ -726,8 +726,10 @@ def transform_text(text):
         text  = text.lower()
         text  = replace_word(text)
         text  = normaliser_word(text)
+        # Removing non ASCII chars 
         text  = re.sub(r'[^\x00-\x7f]',r' ',text)
-        stops={'at', 'only', 'your', 'yourself', 'a', 'i', 'during', 'off', 'myself', 'so', 'o', 'after', 'under', 
+
+        stopwords={'at', 'only', 'your', 'yourself', 'a', 'i', 'during', 'off', 'myself', 'so', 'o', 'after', 'under', 
            'there', 'against', 'over', 'ourselves', 'they', 'me', 'its', 'then', 'above', 'theirs', 'this', 'into', 
            'from', 'very', 'on', 'yours', 'yourselves', 'herself', 'themselves', 'between', 'if', 'below', 'own', 
            'and', 'you', 'itself', 'him', 'while', 's', 'who', 'we', 'what', 'by', 'ma', 'further', 'such', 'until',
@@ -737,20 +739,28 @@ def transform_text(text):
            'more', 'most', 'that', 've', 'will', 'ours', 'our', 'll', 'the', 'y', 'which', 'whom', 'hers', 'an', 'here',
            'how', 'before', 'about', 'for', 'them', 'these', 'their', 'for', 'them', 'these', 'their', 'or', 'must', 
            'shall', 'would', 'could' , 'need', 'might'}
-        filtered_words = [word for word in text.split() if word not in stops]
-        filtered_words = gensim.corpora.textcorpus.remove_short(filtered_words, minsize=3)
+
+        # Removing all the stopwords  
+        filtered_words = [word for word in text.split() if word not in stopwords] 
+        # Removing all the tokens with lesser than 3 characters
+        filtered_words = gensim.corpora.textcorpus.remove_short(filtered_words, minsize=3) 
         text = " ".join(filtered_words)
+        # Remove the punctuation
         text = gensim.parsing.preprocessing.strip_punctuation2(text)
         spell = SpellChecker()
         misspelled = text.split()
         wordnet_lemmatizer = WordNetLemmatizer()
         for i in range(len(misspelled)):
+             # Correct words
              word = spell.correction(misspelled[i])
-             misspelled[i]=word
+             misspelled[i] = word
+             # Lemmatisation
              misspelled[i] = wordnet_lemmatizer.lemmatize(misspelled[i], pos="v")
              misspelled[i] = wordnet_lemmatizer.lemmatize(misspelled[i], pos="n")
         text = " ".join(misspelled)
+        # Removing all the stopwords 
         filtered_words = [word for word in text.split() if word not in stops]
         text = " ".join(filtered_words)
+        # Strip multiple whitespaces
         text = gensim.corpora.textcorpus.strip_multiple_whitespaces(text)
         return text
