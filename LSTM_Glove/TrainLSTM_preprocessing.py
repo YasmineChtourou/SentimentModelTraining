@@ -93,16 +93,13 @@ def createVocabAndData(sentences):
 def createEmbeddingMatrix(word_index,embeddings_index):
     nb_words = min(MAX_NB_WORDS, len(word_index))
     embedding_matrix = np.zeros((nb_words + 1, EMBEDDING_DIM))
-    out_of_vocabulary = set()
     for word, i in word_index.items():
         if i > MAX_NB_WORDS:
             continue
         embedding_vector = embeddings_index.get(word)
         if embedding_vector is not None:
             embedding_matrix[i] = embedding_vector
-        if embedding_vector is None:
-            out_of_vocabulary.add(word)
-    return embedding_matrix,out_of_vocabulary
+    return embedding_matrix
 
 
 def lstmModel(embedding_matrix,epoch):
