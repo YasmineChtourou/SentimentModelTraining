@@ -131,7 +131,7 @@ for i in range(len(sentences)):
     sentences[i] = preprocessing.transform_text(sentences[i])
 vocab, data = createVocabAndData(sentences)
 
-embedding_mat,out_of_vocabulary = createEmbeddingMatrix(vocab,embeddings)
+embedding_mat = createEmbeddingMatrix(vocab,embeddings)
 pickle.dump([data, labels, embedding_mat], open('embedding_matrix.pkl', 'wb'))
 print ("Data created")
 X_train, X_test, y_train, y_test = train_test_split(data, labels, test_size=TEST_SPLIT, random_state=42)
