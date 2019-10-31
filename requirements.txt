@@ -39,7 +39,7 @@ klein==17.10.0
 Markdown==3.1.1
 mock==3.0.5
 murmurhash==1.0.2
-nltk==3.4.3
+nltk==3.4.5
 numpy==1.16.4
 packaging==18.0
 plac==0.9.6
