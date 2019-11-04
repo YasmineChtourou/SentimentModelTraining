@@ -10,8 +10,8 @@ from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
 from keras.utils.np_utils import to_categorical
 from keras.models import Sequential
-from keras.layers.recurrent import LSTM
-from keras.layers.core import Dense, Activation
+from keras.layers import Conv1D, GlobalMaxPooling1D
+from keras.layers.core import Dense, Activation, Dropout
 from keras.layers.embeddings import Embedding
 from keras.callbacks import EarlyStopping
 from sklearn.model_selection import train_test_split
@@ -24,8 +24,8 @@ DIR_DATA = os.path.abspath('../Dataset/')
 MAX_SEQUENCE_LENGTH = 100
 MAX_NB_WORDS = 20000
 EMBEDDING_DIM = 300
-TEST_SPLIT = 0.1
-VALIDATION_SPLIT = 0.1
+TEST_SPLIT = 0.3
+VALIDATION_SPLIT = 0.3
 tokenizer = Tokenizer(num_words=MAX_NB_WORDS)
 label_dict = {}
 classes=[]
@@ -102,12 +102,14 @@ def createEmbeddingMatrix(word_index,embeddings_index):
     return embedding_matrix
 
 
-def lstmModel(embedding_matrix,epoch):
+def cnnModel(embedding_matrix,epoch):
     model = Sequential() # configure the model for training
     n, embedding_dims = embedding_matrix.shape
     
     model.add(Embedding(n, embedding_dims, weights=[embedding_matrix], input_length=MAX_SEQUENCE_LENGTH, trainable=False))
-    model.add(LSTM(128, dropout=0.6, recurrent_dropout=0.6))
+     model.add(Conv1D(32,3, padding='valid', strides=1))
+    model.add(GlobalMaxPooling1D())
+    model.add(Dropout(0.6))
     model.add(Dense(3))
     model.add(Activation('softmax'))
     # add layers
@@ -115,8 +117,23 @@ def lstmModel(embedding_matrix,epoch):
     model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
     print(model.summary())
     
-    model.fit(X_train, y_train, validation_split=VALIDATION_SPLIT, epochs=epoch, batch_size=128,callbacks=[EarlyStopping(patience=3)])
-    model.save_weights('text_lstm_weights.h5')
+    history = model.fit(X_train, y_train, validation_split=VALIDATION_SPLIT, epochs=epoch, batch_size=64,callbacks=[EarlyStopping(patience=3)])
+    # list all data in history
+    plt.plot(history.history['acc'],color='blue')
+    plt.plot(history.history['val_acc'],color='red')
+    plt.title('model accuracy')
+    plt.ylabel('accuracy')
+    plt.xlabel('epoch')
+    plt.legend(['Training Accuracy', 'Validation Accuracy'], loc='upper left')
+    plt.show()
+    # summarize history for loss
+    plt.plot(history.history['loss'],color='blue')
+    plt.plot(history.history['val_loss'],color='red')
+    plt.title('model loss')
+    plt.ylabel('loss')
+    plt.xlabel('epoch')
+    plt.legend(['Training Loss', 'Validation Loss'], loc='upper right')
+    plt.show()
 
     scores= model.evaluate(X_test, y_test, verbose=0)
     print("%s: %.2f%%" % (model.metrics_names[1], scores[1] * 100))
@@ -136,4 +153,4 @@ pickle.dump([data, labels, embedding_mat], open('embedding_matrix.pkl', 'wb'))
 print ("Data created")
 X_train, X_test, y_train, y_test = train_test_split(data, labels, test_size=TEST_SPLIT, random_state=42)
 
-model = lstmModel(embedding_mat,40)
+model = cnnModel(embedding_mat,50)

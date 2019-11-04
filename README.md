@@ -9,8 +9,10 @@ The model was built with Long short-term memory(LSTM).
 
 In this project there are 2 folders:
    * Dataset : it contains the file data.csv
-   * LSTM_Glove : it contains files 
+   * Train_Glove : it contains these files 
        - TrainLSTM_preprocessing.py
+       - TrainCNN_preprocessing.py
+       - TrainRCNN_preprocessing.py
        - preprocessing.py for the preprocessing of the data 
        
 

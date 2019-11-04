@@ -632,6 +632,23 @@ def normaliser_word(word):
     word = " ".join(word)
     return word
 
+def emoticon_transform(word):
+    switcher = {
+        ":)": "smile and happy",
+        ":-)": "smile and happy",
+        ":D": "laughing",
+        ":-D": "laughing",
+        ":(": "sad and angry",
+        ":-(": "sad and angry",
+        ":'( ": "crying",
+        ";(": "sad and angry",
+        ";)": "smirk"
+    }
+    word = word.split()
+    for i in range(len(word)):
+        word[i] = switcher.get(word[i], word[i])
+    word = " ".join(word)
+    return word
 
 def replace_word(word):
     switcher = {
@@ -729,22 +746,26 @@ def transform_text(text):
         # Removing non ASCII chars 
         text  = re.sub(r'[^\x00-\x7f]',r' ',text)
 
-        stopwords={'at', 'only', 'your', 'yourself', 'a', 'i', 'during', 'off', 'myself', 'so', 'o', 'after', 'under', 
-           'there', 'against', 'over', 'ourselves', 'they', 'me', 'its', 'then', 'above', 'theirs', 'this', 'into', 
-           'from', 'very', 'on', 'yours', 'yourselves', 'herself', 'themselves', 'between', 'if', 'below', 'own', 
-           'and', 'you', 'itself', 'him', 'while', 's', 'who', 'we', 'what', 'by', 'ma', 'further', 'such', 'until',
-           'through', 'too', 'until', 'through', 't', 'too', 'where', 'up', 'my', 'm', 'out', 'down', 're', 'to', 
-           'she', 'd', 'those', 'when', 'it', 'because', 'he', 'in', 'other','each', 'both', 'her', 'but', 'as', 'all', 
-           'his', 'again', 'with', 'once', 'am', 'just', 'should', 'why', 'than', 'any', 'should', 'why', 'than',
-           'more', 'most', 'that', 've', 'will', 'ours', 'our', 'll', 'the', 'y', 'which', 'whom', 'hers', 'an', 'here',
-           'how', 'before', 'about', 'for', 'them', 'these', 'their', 'for', 'them', 'these', 'their', 'or', 'must', 
-           'shall', 'would', 'could' , 'need', 'might'}
+        stopwords = {'i', 'he', 'she', 'we', 'they', 'you', 'it', 'myself', 'himself', 
+           'herself', 'ourselves', 'themselves', 'yourself', 'yourselves', 
+           'itself', 'my', 'mine', 'his', 'hers', 'our', 'ours', 'their',
+           'theirs', 'your', 'yours', 'its', 'me', 'him', 'her', 'us', 'them',
+           'at', 'on', 'in', 'from', 'for', 'of', 'by', 'and', 'or', 'with', 
+           'about', 'if', 'to', 'within', 'between', 'into', 'under', 'below',
+           'against', 'over', 'above', 'here', 'there', 'this', 'these', 'those', 'that',
+           'after', 'before', 'until', 'then', 'during', 'when', 'while', 'so',
+           'only', 'such', 'very', 'too', 'than', 'but', 'as', 'also', 
+           'althought', 'despite', 'because', 'other','each', 'both', 'again', 
+           'once',  'just', 'own', 'a', 'an', 'the', 'off', 'up', 'out', 'down',
+           'more', 'most', 'less', 'least', 'who', 'what', 'further', 'through',
+           'where', 'why'} 
 
         # Removing all the stopwords  
         filtered_words = [word for word in text.split() if word not in stopwords] 
         # Removing all the tokens with lesser than 3 characters
         filtered_words = gensim.corpora.textcorpus.remove_short(filtered_words, minsize=3) 
         text = " ".join(filtered_words)
+        text = emoticon_transform(text)
         # Remove the punctuation
         text = gensim.parsing.preprocessing.strip_punctuation2(text)
         spell = SpellChecker()
