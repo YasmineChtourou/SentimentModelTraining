@@ -15,7 +15,7 @@ coloredlogs==10.0
 constantly==15.1.0
 cycler==0.10.0
 cymem==2.0.2
-Django==2.2.2
+Django==2.2.10
 djangorestframework==3.9.4
 docutils==0.14
 future==0.17.1
