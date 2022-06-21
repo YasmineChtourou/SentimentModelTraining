@@ -40,7 +40,7 @@ Markdown==3.1.1
 mock==3.0.5
 murmurhash==1.0.2
 nltk==3.4.3
-numpy==1.16.4
+numpy==1.22.0
 packaging==18.0
 plac==0.9.6
 preshed==2.0.1
